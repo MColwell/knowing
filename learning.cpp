@@ -3,9 +3,9 @@
 #include<string>
 #include<vector>
 /*to do:
-	FIX BUG IN learnable()
-	change all cin to reading from a file UNLESS IT'S A FILE NAME TO READ IN
-	fix reading in a file name to be a C style string and use it
+	change all cin to reading from a file UNLESS IT'S A FILE NAME TO READ
+	fix reading in a file name to be a C style string and use it properly
+	when adding parents, add children (check for dupes) and when adding children, add parents (again)
 	function: figure out every topic you need to learn before you can learn a specified topic
 	figure out what other functions might be useful
 	populate datastructures.txt more, change name to something better like programming.txt or w/e
@@ -26,27 +26,22 @@ struct database {
 
 void learnable (database* points) {
 	rdnode* temp;
-	std::cout << "a" << std::endl;
 	std::vector<rdnode*> learn;
 	bool learnability = true;
-	std::cout << "b" << std::endl;
 	for (int count = 0; count < points->nodes.size(); count++) {
+		learnability = true;
 		temp = points->nodes[count];
-	std::cout << "bb" << temp << std::endl;
 		if (temp->knows == false) {
 			rdnode* parent;
-	std::cout << "c" << std::endl;
-			for (int counter = 0; counter < temp->parents.size() && learnability == true; counter++) {
+			for (int counter = 0; counter < temp->parents.size(); counter++) {
 				parent = temp->parents[counter];
 				if (parent->knows == false) {
 					learnability = false;
-	std::cout << "d" << std::endl;
 				}
 			}
 			if (learnability == true) {
 				learn.push_back(temp);
 			}
-	std::cout << "e" << std::endl;
 		}
 	}
 	std::cout << "You can learn: " << learn.size() << " topics." << std::endl;
