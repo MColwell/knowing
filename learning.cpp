@@ -3,10 +3,7 @@
 #include<string>
 #include<vector>
 /*to do:
-	change all cin to reading from a file UNLESS IT'S A FILE NAME TO READ
-	fix reading in a file name to be a C style string and use it properly
-	when adding parents, add children (check for dupes) and when adding children, add parents (again)
-	function: figure out every topic you need to learn before you can learn a specified topic
+	finish prerequisites function: figure out every topic you need to learn before you can learn a specified topic
 	figure out what other functions might be useful
 	populate datastructures.txt more, change name to something better like programming.txt or w/e
 	implement student files(just a list of known topics)
@@ -33,7 +30,7 @@ void learnable (database* points) {
 		temp = points->nodes[count];
 		if (temp->knows == false) {
 			rdnode* parent;
-			for (int counter = 0; counter < temp->parents.size(); counter++) {
+			for (int counter = 0; counter < temp->parents.size() && learnability == true; counter++) {
 				parent = temp->parents[counter];
 				if (parent->knows == false) {
 					learnability = false;
@@ -61,7 +58,6 @@ void depopulate(database* points) {
 }
 
 rdnode* makenode(std::string topicname, database* points) {
-	std::cout << "makenode " << topicname << std::endl;
 	rdnode* tempnode;
 	for (int count = 0; count < points->nodes.size(); count++) {
 		tempnode = points->nodes[count];
@@ -73,12 +69,10 @@ rdnode* makenode(std::string topicname, database* points) {
 	newnode->topic = topicname;
 	newnode->knows = false;
 	points->nodes.push_back(newnode);
-	std::cout << "adding " << topicname << std::endl;
 	return newnode;
 }
 
 void knowsr(rdnode* temp) {
-	//std::cout << "knowsr" << std::endl;
 	rdnode* thing;
 	bool ask = true;
 	for (int count = 0; count < temp->children.size(); count++) {
@@ -106,13 +100,12 @@ void knowsr(rdnode* temp) {
 }
 
 void knows(database* points) {
-	//std::cout << "knows" << std::endl;
 	rdnode* temp;
 	char answer;
 	for (int count = 0; count < points->nodes.size(); count++) {
 		temp = points->nodes[count];
 		if (temp->parents.size() == 0) {
-			std::cout << "Do you understand " << temp->topic << " (y/n)?" << std::endl; // later implement reading in files (so you can change between students without losing and redoing data)
+			std::cout << "Do you understand " << temp->topic << " (y/n)?" << std::endl;
 			std::cin >> answer;
 			if (answer != 'y' && answer != 'n') {
 				std::cout << "try again" << std::endl;
@@ -126,10 +119,9 @@ void knows(database* points) {
 	}
 }
 
-void populate(const std::string filename, database* points) {
+void populate(char filename[], database* points) {
 	std::vector<std::string> conf;
-	std::cout << filename << std::endl;
-	std::ifstream inputconf("datastructures.txt"); //fix this implementation later! char*[]
+	std::ifstream inputconf(filename);
 	std::string line;
 	while (getline (inputconf, line)) {
 		conf.push_back(line);
@@ -184,21 +176,94 @@ void printall(database* points) {
 	}
 }
 
+void rmknows(database* points) {
+	rdnode* temp;
+	for (int count = 0; count < points->nodes.size(); count++) {
+		temp = points->nodes[count];
+		temp->knows = false;
+	}
+}
+
+void student(database* points) {
+	std::cout << "Enter name of student file." << std::endl;
+	std::vector<std::string> person;
+	char filename[30];
+	std::cin >> filename;
+	std::ifstream inputconf(filename);
+	std::string line;
+	while (getline (inputconf, line)) {
+		person.push_back(line);
+	}
+	inputconf.close();
+	rdnode* tempnode;
+	bool finishloop = false;
+	for (int count = 0; count < person.size(); count++) {
+		for (int counter = 0; counter < points->nodes.size() && finishloop == false; counter++) {
+			tempnode = points->nodes[counter];
+			if (tempnode->topic == person[count]) {
+				tempnode->knows = true;
+				finishloop = true;
+			}
+		}
+		finishloop = false;
+	}
+}
+
+void prerequisites(database* points) {
+	std::string topicname;
+	std::cin >> topicname;
+	rdnode* node;
+	bool assigned = false;
+	for (int count = 0; count < points->nodes.size() && assigned == false; count++) {
+		node = points->nodes[count];
+		if (node->topic == topicname) {
+			assigned = true;
+		}
+	}
+	if (assigned == false) {
+		std::cout << "That topic isn't in the database. You may have spelled or formatted it incorrectly; make sure all your letters are lowercase." << std::endl;
+	}
+}
+
 int main() {
-	/*
-	std::cout << "This program creates a tree where each node has a string (topic) an arbitrary number of children (represented by a vector of pointers) and a boolean value (known == true, unknown == false). This tree is intended to be used as a guideline for learning and teaching. If a student does not fully understand a topic, the boolean should be false for that topic. Learning the children topics should only be done after one learns the node's topic." << std::endl;
-	std::cout << "The program begins by creating a Root Node that does not actually represent a topic. The topic in the Root Node is NULL. Any children of the Root Node do not require prior knowledge." << std::endl;
-	treenode* root = new treenode;
-	root->topic == NULL;
-	root->children[0] == NULL;
-	boolean knows = true;
-	*/
-	std::string filename = "datastructures.txt";	//in the future, cin filename
+	char filename[30];
+	std::cout << "Enter file name for database." << std::endl;
+	std::cin >> filename;
 	database* points = new database;
 	populate(filename, points);
-	printall(points); //this is useless except for debugging
-	knows(points);
-	learnable(points);
+	//printall(points); //this is useless except for debugging
+	bool keeplooping = true;
+	std::cout << "Do you have a student file? (y/n)?" << std::endl;
+	char answer;
+	std::cin >> answer;
+	if (answer == 'y') {
+		student(points);
+	}
+	else {
+		knows(points);
+	}
+	while (keeplooping) {
+		std::cout << "Your options: Change student (a), List all learnable topics for current student (b), Find out what you need to learn before you can learn a specified topic (c)" << std::endl;
+		std::cin >> answer;
+		if (answer == 'a') {
+			rmknows(points);
+			std::cout << "Do you have a student file? (y/n)?" << std::endl;
+			char answer;
+			std::cin >> answer;
+			if (answer == 'y') {
+				student(points);
+			}
+			else {
+				knows(points);
+			}
+		}
+		if (answer == 'b') {
+			learnable(points);
+		}
+		if (answer == 'c') {
+			prerequisites(points);
+		}
+	}
 	depopulate(points);
 	return 0;
 }
