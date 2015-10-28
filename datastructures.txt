@@ -1,0 +1,8 @@
+linked lists#binary trees
+linked lists,binary trees#data structures
+primitive types#structs
+functions#recursion
+linked lists#stacks
+linked lists#queues
+new and delete,pointers,structs#linked lists
+structs#classes
