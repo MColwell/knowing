@@ -116,7 +116,11 @@ void knows(database* points) {
 	}
 }
 
-void populate(char filename[], database* points) {
+database* populate() {
+	char filename[30];
+	std::cout << "Enter file name for database." << std::endl;
+	std::cin >> filename;
+	database* points = new database;
 	std::vector<std::string> conf;
 	std::ifstream inputconf(filename);
 	std::string line;
@@ -163,6 +167,7 @@ void populate(char filename[], database* points) {
 			}
 		}
 	}
+	return points;
 }
 
 void printall(database* points) {
@@ -223,12 +228,7 @@ std::vector<std::string> prerequisites(rdnode* node, database* points) {
 }
 
 int main() {
-	char filename[30];
-	std::cout << "Enter file name for database." << std::endl;
-	std::cin >> filename;
-	database* points = new database;
-	populate(filename, points);
-	//printall(points); //this is useless except for debugging
+	database* points = populate();
 	bool keeplooping = true;
 	std::cout << "Do you have a student file? (y/n)?" << std::endl;
 	char answer;
@@ -240,7 +240,7 @@ int main() {
 		knows(points);
 	}
 	while (keeplooping) {
-		std::cout << "Your options: Change student (a), List all learnable topics for current student (b), Find out what you need to learn before you can learn a specified topic (c)" << std::endl;
+		std::cout << "Your options: Change student (a), List all learnable topics for current student (b), Find out what you need to learn before you can learn a specified topic (c), Print all topics in the database (d), Remove current database and build a new database (e), Exit program (f)" << std::endl;
 		std::cin >> answer;
 		if (answer == 'a') {
 			rmknows(points);
@@ -258,13 +258,16 @@ int main() {
 			learnable(points);
 		}
 		if (answer == 'c') {
+			std::cout << "Type in the name of the topic." << std::endl;
 			std::string topicname;
-			std::cin >> topicname;
+			std::cin.get(topicname);
 			rdnode* node;
 			bool assigned = false;
+			std::vector<std::string> gottalearn;
 			for (int count = 0; count < points->nodes.size() && assigned == false; count++) {
 				node = points->nodes[count];
 				if (node->topic == topicname) {
+					std::cout << "That topic exists in the database." << std::endl;
 					assigned = true;
 				}
 			}
@@ -272,8 +275,31 @@ int main() {
 				std::cout << "That topic isn't in the database. You may have spelled or formatted it incorrectly; make sure all your letters are lowercase." << std::endl;
 			}
 			else {
-				prerequisites(node, points);
+				gottalearn = prerequisites(node, points);
+				if (gottalearn.size() == 0) {
+					std::cout << "You can learn that now!" << std::endl;
+				}
+				else {
+					std::cout << "You need to learn ";
+					for (int count = 0; count < gottalearn.size(); count++) {
+						std::cout << gottalearn[count];
+						if (count + 1 < gottalearn.size()) {
+							std::cout << " and";
+						}
+					}
+					std::cout << " before you can learn " << topicname << "." << std::endl;
+				}
 			}
+		}
+		if (answer == 'd') {
+			printall(points);
+		}
+		if (answer == 'e') {
+			depopulate(points);
+			database* points = populate();
+		}
+		if (answer == 'f') {
+			keeplooping = false;
 		}
 	}
 	depopulate(points);
