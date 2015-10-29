@@ -259,8 +259,12 @@ int main() {
 		}
 		if (answer == 'c') {
 			std::cout << "Type in the name of the topic." << std::endl;
+			char topicchar[70];
+			std::cin.getline(topicchar,70);
 			std::string topicname;
-			std::cin.get(topicname);
+			for (int count = 0; count < 70 && topicchar[count] != '\0'; count++) {
+				topicname.push_back(topicchar[count]);
+			}
 			rdnode* node;
 			bool assigned = false;
 			std::vector<std::string> gottalearn;
