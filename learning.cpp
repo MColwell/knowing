@@ -3,11 +3,8 @@
 #include<string>
 #include<vector>
 /*to do:
-	finish prerequisites function: figure out every topic you need to learn before you can learn a specified topic
 	figure out what other functions might be useful
 	populate datastructures.txt more, change name to something better like programming.txt or w/e
-	implement student files(just a list of known topics)
-	implement interface for users to specify a student file so knows is automatically run with it
 */
 struct rdnode {
 	public:
@@ -209,20 +206,20 @@ void student(database* points) {
 	}
 }
 
-void prerequisites(database* points) {
-	std::string topicname;
-	std::cin >> topicname;
-	rdnode* node;
-	bool assigned = false;
-	for (int count = 0; count < points->nodes.size() && assigned == false; count++) {
-		node = points->nodes[count];
-		if (node->topic == topicname) {
-			assigned = true;
+std::vector<std::string> prerequisites(rdnode* node, database* points) {
+	std::vector<std::string> needtoknow;
+	rdnode* parent;
+	for (int count = 0; count < node->parents.size(); count++) {
+		parent = node->parents[count];
+		if (parent->knows == false) {
+			needtoknow.push_back(parent->topic);
+			std::vector<std::string> alsoneed = prerequisites(parent, points);
+			for (int counter = 0; counter < alsoneed.size(); counter++) {
+				needtoknow.push_back(alsoneed[counter]);
+			}
 		}
 	}
-	if (assigned == false) {
-		std::cout << "That topic isn't in the database. You may have spelled or formatted it incorrectly; make sure all your letters are lowercase." << std::endl;
-	}
+	return needtoknow;
 }
 
 int main() {
@@ -261,7 +258,22 @@ int main() {
 			learnable(points);
 		}
 		if (answer == 'c') {
-			prerequisites(points);
+			std::string topicname;
+			std::cin >> topicname;
+			rdnode* node;
+			bool assigned = false;
+			for (int count = 0; count < points->nodes.size() && assigned == false; count++) {
+				node = points->nodes[count];
+				if (node->topic == topicname) {
+					assigned = true;
+				}
+			}
+			if (assigned == false) {
+				std::cout << "That topic isn't in the database. You may have spelled or formatted it incorrectly; make sure all your letters are lowercase." << std::endl;
+			}
+			else {
+				prerequisites(node, points);
+			}
 		}
 	}
 	depopulate(points);
