@@ -4,6 +4,7 @@
 #include<vector>
 /*to do:
 	figure out what other functions might be useful
+	merge student() and knows() so that there's one function with a boolean (ask or w/e) that calls a tiny function to acquire the y or n if it's true
 	populate datastructures.txt more, change name to something better like programming.txt or w/e
 */
 struct rdnode {
@@ -27,7 +28,7 @@ void learnable (database* points) {
 		temp = points->nodes[count];
 		if (temp->knows == false) {
 			rdnode* parent;
-			for (int counter = 0; counter < temp->parents.size() && learnability == true; counter++) {
+			for (int counter = temp->parents.size(); counter >= 0 && learnability == true; counter--) {
 				parent = temp->parents[counter];
 				if (parent->knows == false) {
 					learnability = false;
@@ -69,50 +70,64 @@ rdnode* makenode(std::string topicname, database* points) {
 	return newnode;
 }
 
-void knowsr(rdnode* temp) {
-	rdnode* thing;
-	bool ask = true;
-	for (int count = 0; count < temp->children.size(); count++) {
-		thing = temp->children[count];
-		rdnode* third;
-		for (int counter = 0; count < thing->parents.size(); count++) {
-			third = thing->parents[count];
-			if (third->knows == false) {
-				ask = false;
-			}
-		}
-		if (ask == true) {
-			std::cout << "Do you understand " << thing->topic << " (y/n)?" << std::endl;
-			char answer;
-			std::cin >> answer;
-			if (answer != 'y' && answer != 'n') {
-				std::cout << "try again" << std::endl;
-			}
-			if (answer == 'y') {
-				thing->knows = true;
-			}
-		}
-		ask = false;
+bool asker(rdnode* temp) {
+	char answer;
+	std::cout << "Do you understand " << temp->topic << " (y/n)?" << std::endl;
+	std::cin >> answer;
+	if (answer == 'y') {
+		return true;
+	}
+	if (answer == 'n') {
+		return false;
+	}
+	std::cout << "That's not y or n. Try again." << std::endl;
+	return asker(temp);
+}
+
+void parentsknown(rdnode* temp) {
+	temp->knows = true;
+	for (int count = 0; count < temp->parents.size(); count++) {
+		parentsknown(temp->parents[count]);
 	}
 }
 
-void knows(database* points) {
+void knows(database* points, bool hasfile) {
 	rdnode* temp;
-	char answer;
+	bool yeah;
+	std::vector<std::string> person;
+	if (hasfile == true) {
+		std::cout << "Enter name of student file." << std::endl;
+		char filename[30];
+		std::cin >> filename;
+		std::ifstream inputconf(filename);
+		std::string line;
+		while (getline (inputconf, line)) {
+			person.push_back(line);
+		}
+		inputconf.close();
+	}
 	for (int count = 0; count < points->nodes.size(); count++) {
+		yeah = false;
 		temp = points->nodes[count];
-		if (temp->parents.size() == 0) {
-			std::cout << "Do you understand " << temp->topic << " (y/n)?" << std::endl;
-			std::cin >> answer;
-			if (answer != 'y' && answer != 'n') {
-				std::cout << "try again" << std::endl;
-				count--;
+		if (temp->knows == false) {
+			if (!hasfile) {
+				temp->knows = asker(temp);
+				if (temp->knows) {
+					yeah = true;
+				}
 			}
-			if (answer == 'y') {
-				temp->knows = true;
-				knowsr(temp);
+			else {
+				for (int counter = 0; counter < person.size() && yeah == false; counter++) {
+					if (person[counter] == temp->topic) {
+						yeah = true;
+						temp->knows = true;
+					}
+				}
 			}
-		}		
+			if (yeah) {
+				parentsknown(temp);
+			}
+		}
 	}
 }
 
@@ -234,10 +249,11 @@ int main() {
 	char answer;
 	std::cin >> answer;
 	if (answer == 'y') {
-		student(points);
+		knows(points, true);
 	}
 	else {
-		knows(points);
+		std::cout << "else is working" << std::endl;
+		knows(points, false);
 	}
 	while (keeplooping) {
 		std::cout << "Your options: Change student (a), List all learnable topics for current student (b), Find out what you need to learn before you can learn a specified topic (c), Print all topics in the database (d), Remove current database and build a new database (e), Exit program (f)" << std::endl;
@@ -248,10 +264,10 @@ int main() {
 			char answer;
 			std::cin >> answer;
 			if (answer == 'y') {
-				student(points);
+				knows(points, true);
 			}
 			else {
-				knows(points);
+				knows(points, false);
 			}
 		}
 		if (answer == 'b') {
