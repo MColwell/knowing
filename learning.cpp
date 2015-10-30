@@ -4,7 +4,6 @@
 #include<vector>
 /*to do:
 	figure out what other functions might be useful
-	merge student() and knows() so that there's one function with a boolean (ask or w/e) that calls a tiny function to acquire the y or n if it's true
 	populate datastructures.txt more, change name to something better like programming.txt or w/e
 */
 struct rdnode {
@@ -25,16 +24,19 @@ void learnable (database* points) {
 	bool learnability = true;
 	for (int count = 0; count < points->nodes.size(); count++) {
 		learnability = true;
+		std::cout << "aaaaaa" << std::endl;
 		temp = points->nodes[count];
 		if (temp->knows == false) {
 			rdnode* parent;
-			for (int counter = temp->parents.size(); counter >= 0 && learnability == true; counter--) {
+			std::cout << "aaabbbbaaa" << std::endl;
+			for (int counter = temp->parents.size() - 1; counter >= 0 && learnability == true; counter--) {
 				parent = temp->parents[counter];
 				if (parent->knows == false) {
 					learnability = false;
 				}
 			}
 			if (learnability == true) {
+				std::cout << "accca" << std::endl;
 				learn.push_back(temp);
 			}
 		}
@@ -131,11 +133,10 @@ void knows(database* points, bool hasfile) {
 	}
 }
 
-database* populate() {
+database* populate(database* points) {
 	char filename[30];
 	std::cout << "Enter file name for database." << std::endl;
 	std::cin >> filename;
-	database* points = new database;
 	std::vector<std::string> conf;
 	std::ifstream inputconf(filename);
 	std::string line;
@@ -243,7 +244,8 @@ std::vector<std::string> prerequisites(rdnode* node, database* points) {
 }
 
 int main() {
-	database* points = populate();
+	database* points = new database;
+	points = populate(points);
 	bool keeplooping = true;
 	std::cout << "Do you have a student file? (y/n)?" << std::endl;
 	char answer;
@@ -256,7 +258,7 @@ int main() {
 		knows(points, false);
 	}
 	while (keeplooping) {
-		std::cout << "Your options: Change student (a), List all learnable topics for current student (b), Find out what you need to learn before you can learn a specified topic (c), Print all topics in the database (d), Remove current database and build a new database (e), Exit program (f)" << std::endl;
+		std::cout << "Your options: Change student (a), List all learnable topics for current student (b), Find out what you need to learn before you can learn a specified topic (c), Print all topics in the database (d), Remove current database and build a new database (e), Add a database's nodes to the current database (f), Exit program (g)" << std::endl;
 		std::cin >> answer;
 		if (answer == 'a') {
 			rmknows(points);
@@ -275,12 +277,8 @@ int main() {
 		}
 		if (answer == 'c') {
 			std::cout << "Type in the name of the topic." << std::endl;
-			char topicchar[70];
-			std::cin.getline(topicchar,70);
 			std::string topicname;
-			for (int count = 0; count < 70 && topicchar[count] != '\0'; count++) {
-				topicname.push_back(topicchar[count]);
-			}
+			std::getline (std::cin, topicname);
 			rdnode* node;
 			bool assigned = false;
 			std::vector<std::string> gottalearn;
@@ -316,9 +314,12 @@ int main() {
 		}
 		if (answer == 'e') {
 			depopulate(points);
-			database* points = populate();
+			database* points = populate(points);
 		}
 		if (answer == 'f') {
+			points = populate(points);
+		}
+		if (answer == 'g') {
 			keeplooping = false;
 		}
 	}
