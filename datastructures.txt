@@ -6,3 +6,10 @@ linked lists#stacks
 linked lists#queues
 new and delete,pointers,structs#linked lists
 structs#classes
+primitive types#bag
+primitive types#array
+int,string,char,double,float#primitive types
+array#vector
+operators#functions
++,-,==,=,->,.,>,=>,<,=<#operators
+primitive types#new and delete
