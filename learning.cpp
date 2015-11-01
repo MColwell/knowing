@@ -233,10 +233,27 @@ std::vector<std::string> prerequisites(rdnode* node, database* points) {
 	for (int count = 0; count < node->parents.size(); count++) {
 		parent = node->parents[count];
 		if (parent->knows == false) {
-			needtoknow.push_back(parent->topic);
+			bool alreadythere = false;
+			for (int counter = 0; counter < needtoknow.size(); counter++) {
+				if (parent->topic == needtoknow[counter]) {
+					alreadythere = true;
+				}
+			}
+			if (alreadythere == false) {
+				needtoknow.push_back(parent->topic);
+			}
 			std::vector<std::string> alsoneed = prerequisites(parent, points);
+			alreadythere = false;
 			for (int counter = 0; counter < alsoneed.size(); counter++) {
-				needtoknow.push_back(alsoneed[counter]);
+				for (int counting = 0; counting < needtoknow.size(); counting++) {
+					if (needtoknow[counting] == alsoneed[counter]) {
+						alreadythere = true;
+					}
+				}
+				if (alreadythere == false) {
+					needtoknow.push_back(alsoneed[counter]);
+				}
+				alreadythere = false;
 			}
 		}
 	}
@@ -276,9 +293,12 @@ int main() {
 			learnable(points);
 		}
 		if (answer == 'c') {
-			std::cout << "Type in the name of the topic." << std::endl;
+			std::cout << "Type in the name of the topic. ";
 			std::string topicname;
+			//std::cout << "before" << std::endl;
+			std::cin.ignore();
 			std::getline (std::cin, topicname);
+			//std::cout << "after" << std::endl;
 			rdnode* node;
 			bool assigned = false;
 			std::vector<std::string> gottalearn;
@@ -302,7 +322,7 @@ int main() {
 					for (int count = 0; count < gottalearn.size(); count++) {
 						std::cout << gottalearn[count];
 						if (count + 1 < gottalearn.size()) {
-							std::cout << " and";
+							std::cout << " and ";
 						}
 					}
 					std::cout << " before you can learn " << topicname << "." << std::endl;
