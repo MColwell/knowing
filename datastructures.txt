@@ -1,11 +1,11 @@
 linked lists#binary trees
 linked lists,binary trees#data structures
-primitive types#structs
+variables#structs
 functions#recursion
-linked lists#stacks
-linked lists#queues
+nodes,array#stacks
+nodes,array#queues
 new and delete,pointers,structs#linked lists
-structs#classes
+structs,functions#classes
 primitive types#bag
 primitive types#array
 int,string,char,double,float#primitive types
@@ -13,3 +13,8 @@ array#vector
 operators#functions
 +,-,==,=,->,.,>,=>,<,=<#operators
 primitive types#new and delete
+pass by reference,pass by value#functions
+primitive types#variables
+variables#pass by reference
+variables#pass by value
+nodes#linked lists
