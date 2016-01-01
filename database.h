@@ -16,17 +16,36 @@ class database {
 		return nodes.size();
 	}
 	rdnode* makenode(std::string topicname) {
+		//std::cout << "Current node count: " << nodes.size() << std::endl;
+		//std::cout << "About to make tempnode" << std::endl;
 		rdnode* tempnode;
+		//std::cout << "Tempnode made. " << std::endl;
+		if (topicname.size() == 0) {
+			return 0;
+		}
+		if (nodes.size() == 0) {
+			rdnode* newnode = new rdnode;
+			newnode->topic = topicname;
+			newnode->knows = false;
+			nodes.push_back(newnode);
+			return newnode;
+		}
 		for (int count = 0; count < nodes.size(); count++) {
+			//std::cout << "In for loop." << std::endl;
 			tempnode = nodes[count];
+			//std::cout << "aaa" << std::endl;
 			if (tempnode->topic == topicname) {
+				//std::cout << "Topic " << topicname << " already in database." << std::endl;
 				return tempnode;
 			}
 		}
+		//std::cout << "Topic " << topicname << " not in database." << std::endl;
 		rdnode* newnode = new rdnode;
 		newnode->topic = topicname;
 		newnode->knows = false;
+		//std::cout << "New node created, adding node to database. " << std::endl;
 		nodes.push_back(newnode);
+		//std::cout << "Node added to database." << std::endl;
 		return newnode;
 	}
 	void learnable () {
@@ -40,12 +59,15 @@ class database {
 				rdnode* parent;
 				for (int counter = temp->parents.size() - 1; counter >= 0 && learnability == true; counter--) {
 					parent = temp->parents[counter];
-		std::cout << "aaaaaaa" << std::endl;
+/**/					//std::cout << "aaaaaaa" << std::endl;
+//std::cout << parent->topic << std::endl;
 					if (parent->knows == false) {
+						//std::cout << "bbbbbb" << std::endl;
 						learnability = false;
 					}
 				}
 				if (learnability == true) {
+					//std::cout << "truuuuuu" << std::endl;
 					learn.push_back(temp);
 				}
 			}
@@ -62,6 +84,8 @@ class database {
 			delnode = nodes[count];
 			delete delnode;
 		}
+		nodes.clear();
+		//std::cout << "node count: " << nodes.size() << std::endl;
 	}
 	bool asker(rdnode* temp) {
 		char answer;
@@ -125,10 +149,12 @@ class database {
 	}
 
 	database* populate() {
+		//std::cout << "currently " << nodes.size() << " nodes." << std::endl;
 		char filename[30];
 		std::cout << "Enter file name for database." << std::endl;
 		std::cin >> filename;
 		std::vector<std::string> conf;
+		conf.clear();
 		std::ifstream inputconf(filename);
 		std::string line;
 		while (getline (inputconf, line)) {
@@ -139,23 +165,34 @@ class database {
 			line = conf[counter];
 			rdnode* tempnode;
 			std::string currstring;
+			currstring.clear();
 			int count = 0;
 			std::vector<rdnode*> parenting;
-			for(; count < line.size(); count++) {
+			parenting.clear();
+			for(bool done = false; count < line.size() && done == false; count++) {
 				if (line[count] != ',' && line[count] != '#') {
+					//std::cout << "a" << std::endl;
 					currstring.push_back(line[count]);
+					//std::cout << "b " << currstring << " b.1" << std::endl;
 				}
 				if (line[count] == ',' || line[count] == '#') {
+					//std::cout << "c " << currstring << " c.1" << std::endl;
 					tempnode = makenode(currstring);
+					//std::cout << "c.2" << std::endl;
 					currstring.clear();
+					//std::cout << "c.5" << std::endl;
 					parenting.push_back(tempnode);
+					//std::cout << "d" << std::endl;
 				}
 				if (line[count] == '#') {
-					break;
+					//std::cout << "e " << count << std::endl;
+					done = true;
 				}
+				//std::cout << "f" << std::endl;
 			}
-			count++;
+			//std::cout << "g" << std::endl;
 			for (; count < line.size(); count++) {
+				//std::cout << "pushing " << count << line[count] << " onto " << currstring << std::endl;
 				currstring.push_back(line[count]);
 			}
 			tempnode = makenode(currstring);
@@ -261,9 +298,9 @@ class database {
 			if (newtopic == "0") {
 				std::cout << "what." << std::endl;
 			}
-			newtopic = "sentinelvalueeeeeeee";
+			newtopic = "sentinelvalue";
 			std::getline(std::cin, newtopic);
-			if (newtopic == "sentinelvalueeeeeeee") {
+			if (newtopic.compare("sentinelvalue") == 0) {
 				std::cin.ignore();
 				std::getline (std::cin, newtopic);
 			}
