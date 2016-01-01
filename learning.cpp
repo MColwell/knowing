@@ -8,8 +8,10 @@
 	populate datastructures.txt more, change name to something better like programming.txt or w/e
 	function a: write current database to a new file
 	function b: update current student file by knowing something new
-	function c: add new node to database, specify parents
+	function c: pick a learnable topic and print an explanation
+		add a pointer to the node, point the pointer to an 'explanation' struct which is an array of 3 bigggg strings, find out if there's a maximum string size, let people pick level of depth for explanation, 3 explanations for each topic with different explanation depth
 	make database with actual available courses and their dependencies so I can run the learnable function to figure out what classes I can take next semester also need my personal student file for that with the classes I've taken, maybe only include CSCI courses and their prerequisites in the database
+	Fix segfaults :(
 */
 
 int main() {
@@ -87,7 +89,7 @@ int main() {
 			database* points = points->populate();
 		}
 		if (answer == 'f') {
-			points = points->populate();
+			points->populate();
 		}
 		if (answer == 'g') {
 			points->addnode();
